@@ -1,0 +1,33 @@
+---
+title: "Stan + R Workshop"
+author: "Calvin College"
+date: "Summer 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+The Calvin College Department of Mathematics and Statistics is exploring the possibility of offering a Stan + R workshop in the summer of 2019.
+Our current idea is a workshop of approximately 3 days in early June, 
+but both dates and length are flexible at this point.
+
+We have some funds we hope to use to cover travel costs and modest stipends for
+workshop leader(s), and generally to subsidize the operation to keep participant
+costs low. 
+
+## Target Audience
+
+The target audience would be faculty and other researchers, either
+teachers or practitioners of applied statistics.
+
+## Are You Interested?
+
+If you would be interested in attending such a workshop and would like to be
+added to an email list to receive updates as plans are finalized, please 
+add your contact information using this 
+[Google Form](https://goo.gl/forms/8qE053E0UhvCScgk1).
+There is room for comments and suggestions as well.
+
