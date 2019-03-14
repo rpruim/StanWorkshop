@@ -1,7 +1,7 @@
 ---
-title: "Stan + R Workshop"
+title: "Stan (+R) Workshop"
 author: "Calvin College"
-date: "Summer 2019"
+date: "June 10-12, 2019"
 output: html_document
 ---
 
@@ -9,25 +9,88 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+![](images/stan_wide_logo.png)
 
-The Calvin College Department of Mathematics and Statistics is exploring the possibility of offering a Stan + R workshop in the summer of 2019.
-Our current idea is a workshop of approximately 3 days in early June, 
-but both dates and length are flexible at this point.
+## Dates and Location
 
-We have some funds we hope to use to cover travel costs and modest stipends for
-workshop leader(s), and generally to subsidize the operation to keep participant
-costs low. 
+Calvin College will be hosting a Stan (+R) workshop **June 10-12**.
+Sessions will begin each day at 9 am and conclude at 4 pm.  Lunch and
+mid-session refreshments will be provided.
+
+Calvin College is located in Grand Rapids, MI.
+
+[Campus Map](https://calvin.edu/map/?place=north-hall)
+
 
 ## Target Audience
 
-The target audience would be faculty and other researchers, either
+The target audience is faculty and other researchers, either
 teachers or practitioners of applied statistics.
 
-## Are You Interested?
+## Registration
 
-If you would be interested in attending such a workshop and would like to be
-added to an email list to receive updates as plans are finalized, please 
-add your contact information using this 
-[Google Form](https://goo.gl/forms/8qE053E0UhvCScgk1).
-There is room for comments and suggestions as well.
+Limited space is available for this workshop. Registration via EventBrite is available
+at <https://calvin-stan-workshop.eventbrite.com>.
+
+## Workshop Description
+
+This **three-day workshop** will provide an introduction to using Stan for
+Bayesian data analysis. 
+
+### What is Stan?
+
+[Stan®](https://mc-stan.org/) is a state-of-the-art 
+platform for statistical
+modeling and high-performance statistical computation. Users specify log density
+functions in Stan’s probabilistic programming language and get:
+
+* full Bayesian statistical inference with MCMC sampling (NUTS, HMC)
+
+* approximate Bayesian inference with variational inference (ADVI)
+
+* penalized maximum likelihood estimation with optimization (L-BFGS)
+
+Workshop sessions will include information on designing models, choosing priors,
+describing models in the Stan language, detecting and addressing potential
+problems with the HMC sampler, and interpreting results.  Our primary interface
+to Stan will be via R and RStudio, but participants should be able to transfer
+skills to other interfaces, including python.  Ample hands-on time will be
+provided with guided activities to give participants experience using Stan.  No
+prior experience with Stan is required.
+
+### Lead Presenter
+
+Our lead presenter will be **Jonah Sol Gabry**.  Jonah is a member of the Stan core
+development team and a researcher in statistics working with Andrew Gelman on
+methods and software for Bayesian data analysis. He is co-author of the 
+[rstan](http://mc-stan.org/interfaces/rstan.html)
+and [rstanarm](http://mc-stan.org/interfaces/rstanarm.html)
+R packages, which provide interfaces to Stan, as well as author and
+maintainer of the 
+[shinystan](http://mc-stan.org/interfaces/shinystan) and 
+[bayesplot](http://mc-stan.org/interfaces/bayesplot) 
+packages  for model visualization, and
+the [loo](http://mc-stan.org/interfaces/loo.html)
+R package for model comparison. Jonah is also affiliated with the
+Columbia Population Research Center, where he advises on statistical issues
+related to collection and analysis of survey data.
+
+## Lodging and Transportation
+
+Participants from out of town can choose to stay at the 
+[Prince Conference Center](https://calvin.edu/offices-services/prince-conference-center/accommodations/) ($129 + tax per night) on Calvin's campus (mention the Stan Workshop when
+reserving your room) or at one of 
+[many nearby hotels](https://www.google.com/maps/search/hotels+near+calvin+college/@42.92019,-85.5748815,14z). 
+
+The Gerald R. Ford International Airport (GRR) is located approximately 6 miles
+from campus. The Prince Conference Center provides shuttle service to/from the
+airport for guests who request this in advance.
+
+## Sponsors
+
+This workshop is made possible by the 
+**Vos Endowment for Excellence in Mathematics and Statistics** 
+of **Calvin College** and through support of the
+**Department of Statistics** at **Grand Valley State University**.
+
 
