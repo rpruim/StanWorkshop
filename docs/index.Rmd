@@ -2,7 +2,13 @@
 title: "Stan (+R) Workshop"
 author: "Calvin College"
 date: "June 10-12, 2019"
-output: html_document
+output: 
+  html_document: 
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
 ---
 
 ```{r setup, include=FALSE}
