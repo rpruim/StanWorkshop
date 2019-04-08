@@ -38,6 +38,8 @@ teachers or practitioners of applied statistics.
 Limited space is available for this workshop. Registration via EventBrite is available
 at <https://calvin-stan-workshop.eventbrite.com>.
 
+**Update:** We are sold out, but we are maintaining a waiting list.
+
 ## Workshop Description
 
 This **three-day workshop** will provide an introduction to using Stan for
@@ -64,7 +66,7 @@ skills to other interfaces, including python.  Ample hands-on time will be
 provided with guided activities to give participants experience using Stan.  No
 prior experience with Stan is required.
 
-### Lead Presenter
+### Presenters
 
 Our lead presenter will be **Jonah Sol Gabry**.  Jonah is a member of the Stan core
 development team and a researcher in statistics working with Andrew Gelman on
@@ -80,6 +82,12 @@ the [loo](http://mc-stan.org/interfaces/loo.html)
 R package for model comparison. Jonah is also affiliated with the
 Columbia Population Research Center, where he advises on statistical issues
 related to collection and analysis of survey data.
+
+Joining Jonah will be **Vianey Leos Barajas**.
+Vianey is a statistician who does research in the area of statistical ecology,
+with a primary focus on time series modeling of animal movement data. She
+currently uses Stan to model shark and elasmobranch data in collaboration with
+the [MigraMar](http://migramar.org/hi/en/) group.
 
 ## Lodging and Transportation
 
