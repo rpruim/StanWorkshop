@@ -1326,9 +1326,7 @@ h6 {
 </style>
 
 
-</head>
 
-<body>
 
 <style type="text/css">
 .main-container {
@@ -1359,8 +1357,6 @@ summary {
 </style>
 
 
-
-<div class="container-fluid main-container">
 
 <!-- tabsets -->
 
@@ -1519,6 +1515,16 @@ div.tocify {
 
 </style>
 
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
 <!-- setup 3col/9col grid for toc_float and main content  -->
 <div class="row-fluid">
 <div class="col-xs-12 col-sm-4 col-md-3">
@@ -1536,8 +1542,8 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Stan (+R) Workshop</h1>
-<h4 class="author"><em>Calvin College</em></h4>
-<h4 class="date"><em>June 10-12, 2019</em></h4>
+<h4 class="author">Calvin College</h4>
+<h4 class="date">June 10-12, 2019</h4>
 
 </div>
 
@@ -1576,6 +1582,24 @@ div.tocify {
 <p>Our lead presenter will be <strong>Jonah Sol Gabry</strong>. Jonah is a member of the Stan core development team and a researcher in statistics working with Andrew Gelman on methods and software for Bayesian data analysis. He is co-author of the <a href="http://mc-stan.org/interfaces/rstan.html">rstan</a> and <a href="http://mc-stan.org/interfaces/rstanarm.html">rstanarm</a> R packages, which provide interfaces to Stan, as well as author and maintainer of the <a href="http://mc-stan.org/interfaces/shinystan">shinystan</a> and <a href="http://mc-stan.org/interfaces/bayesplot">bayesplot</a> packages for model visualization, and the <a href="http://mc-stan.org/interfaces/loo.html">loo</a> R package for model comparison. Jonah is also affiliated with the Columbia Population Research Center, where he advises on statistical issues related to collection and analysis of survey data.</p>
 <p>Joining Jonah will be <strong>Vianey Leos Barajas</strong>. Vianey is a statistician who does research in the area of statistical ecology, with a primary focus on time series modeling of animal movement data. She currently uses Stan to model shark and elasmobranch data in collaboration with the <a href="http://migramar.org/hi/en/">MigraMar</a> group.</p>
 </div>
+</div>
+<div id="before-you-arrive" class="section level2">
+<h2>Before You Arrive</h2>
+<p>To get the most out of the workshop, come with a laptop ready to use RStudio and Stan. (Let the organizers know ASAP if you do not have a laptop you can bring and we will see if we can find something for you to borrow.) Here’s is what should be on your laptop.</p>
+<ul>
+<li>A recent version of RStudio (1.2.x or later)</li>
+<li>A recent version of R</li>
+<li>A recent version of Stan (version 2.18.0 or above).
+<ul>
+<li>Detailed Instructions for this are at <a href="https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started" class="uri">https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started</a></li>
+<li>You can test your configuration by running one of the demo models.</li>
+<li>If you have trouble, post on the (friendly) Stan forums <a href="https://discourse.mc-stan.org" class="uri">https://discourse.mc-stan.org</a> and get help before coming to the workshop.</li>
+</ul></li>
+<li><p>The following R packages</p>
+<pre class="r"><code>packages &lt;- c('bayesplot', 'loo', 'shinystan', 'rstanarm', 
+              'brms', 'lubridate',  'rmarkdown', 'tidyverse')
+install.packages(packages)</code></pre></li>
+</ul>
 </div>
 <div id="lodging-and-transportation" class="section level2">
 <h2>Lodging and Transportation</h2>
