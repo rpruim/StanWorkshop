@@ -1,0 +1,241 @@
+---
+title: "Pre-Workshop Survey Results"
+author: "R Pruim"
+date: "5/24/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE,
+  echo = FALSE
+  )
+library(qualtRics)
+library(ggformula)
+library(dplyr)
+library(htmltools)
+```
+
+```{r functions, include = FALSE}
+
+na_rm <- function(x) x[!is.na(x)]
+gridify_question <- function(survey, item, key = "prompt", value = "response") {
+  idx <- grep(paste0(item, "_"), names(survey))
+  prompts <- 
+    sapply(
+      names(survey)[idx],
+      function(x) survey %>% pull(x) %>% attr("label"),
+      USE.NAMES = FALSE
+    )
+  survey[c(1, idx)] %>% 
+    tidyr::gather(key = key, value = value, -1) %>%
+    dplyr::mutate(key = prompts[key])
+}
+```
+
+```{r, include = FALSE}
+# qualtrics_api_credentials(
+#   api_key = "ELOZdVf8SUYwFYewdoBOOPREzOyCChtZbbwbcR9j",
+#   base_url = "https://calvin.co1.qualtrics.com",
+#   install = TRUE
+# )
+```
+
+```{r, include = FALSE}
+surveys <- all_surveys()
+w <- which(surveys$name == "Stan Workshop")
+Survey <- fetch_survey(surveys$id[w]) # , force_request = TRUE)
+Questions <- survey_questions(surveyID = surveys$id[w])
+rm(w)
+Survey <-
+  Survey %>% 
+  mutate(
+    Q1 = ifelse(grepl("GV", Q1), "Grand Valley State University", Q1)
+  )
+```
+
+Number of surveys completed: `r nrow(Survey)`
+
+### Demographics
+
+```{r, demographics, results = "hide", fig.show = "hold"}
+for (i in c(11, 2, 1)) {
+  q <- Questions$qnames[i]
+  cat(paste(i, "--", q, ":", Questions$question[i], "\n"))
+  fff <- as.formula(substitute( x ~ ., list(x = as.name(Questions$qnames[i]))))
+  if (! q %in% names(Survey)) {
+    print (fff)
+    next
+  }
+  gf_barh(fff, data = Survey) %>%
+    gf_labs(subtitle = Questions$question[i]) %>%
+    print()
+}
+```
+
+```{r free-response, results = "asis"}
+for (q in c("Q3")) {
+  h3(Questions$question[i])
+  Survey[[q]] %>% na.omit() %>% lapply(p)
+}
+```
+
+### Background/Interests
+
+```{r, stan-pre}
+gf_barh( substr(Q6, 1, 60) ~ ., data = Survey) %>% 
+  gf_labs(y = "", title = Questions %>% filter(qnames == "Q6") %>% pull("question")) %>% 
+  gf_theme(axis.text.y = element_text(angle = 20, hjust = 1)) 
+```
+
+```{r other-software}
+gridify_question(Survey, "Q7") %>% 
+  filter(!is.na(value)) %>%
+  mutate(
+    value = factor(value,
+                   levels = c(
+                     "Never",
+                     "Sometimes",
+                     "Often"
+                   )
+    )
+  ) %>%
+  group_by(key, value) %>%
+  summarise(n = n()) %>%
+  gf_tile(n ~ value + key) %>% 
+  gf_text(label = ~ n, color = "white") %>%
+  gf_theme(axis.text.y = element_text(angle = 20, hjust = 1)) %>%
+  gf_refine(scale_fill_viridis_c(end = 0.9)) %>%
+  gf_labs(x = "", y = "", 
+          subtitle = Questions %>% filter(qnames == "Q7") %>% pull("question"))
+
+gridify_question(Survey, "Q7") %>% 
+  gf_jitter(value ~ key, geom = "line", width = 0, 
+            group = ~ResponseID, color = ~ ResponseID,
+            show.legend = FALSE) %>%
+  gf_labs(x = "", y = "", 
+          subtitle = Questions %>% filter(qnames == "Q7") %>% pull("question")) %>%
+  gf_theme(axis.text = element_text(angle = 20, hjust = 1))
+```
+
+```{r, ihow-many-times}
+gridify_question(Survey, "Q4") %>% 
+  filter(!is.na(value)) %>%
+  mutate(
+    value = factor(value,
+                   levels = c(
+                     "Never",
+                     "Once or twice",
+                     "Several times",
+                     "Many times")
+    )
+  ) %>%
+  group_by(key, value) %>%
+  summarise(n = n()) %>%
+  gf_tile(n ~ value + key) %>% 
+  gf_text(label = ~ n, color = "white") %>%
+  gf_theme(axis.text = element_text(angle = 20, hjust = 1)) %>%
+  gf_refine(scale_fill_viridis_c(end = 0.9)) %>%
+  gf_labs(x = "", y = "", 
+          title = Questions %>% filter(qnames == "Q4") %>% pull("question"))
+
+gridify_question(Survey, "Q4") %>% 
+  mutate(
+    value = factor(value,
+                   levels = c(
+                     "Never",
+                     "Once or twice",
+                     "Several times",
+                     "Many times")
+    )
+  ) %>%
+  gf_jitter(value ~ key, geom = "line", width = 0, height = 0.3,
+            group = ~ResponseID, color = ~ ResponseID,
+            show.legend = FALSE) %>%
+  gf_labs(x = "", y = "", 
+          title = Questions %>% filter(qnames == "Q4") %>% pull("question")) %>%
+  gf_theme(axis.text = element_text(angle = 20, hjust = 1))
+```
+
+```{r applications}
+gridify_question(Survey, "Q9") %>% 
+  filter(!is.na(value)) %>%
+  mutate(
+    value = factor(value, 
+                   levels = c(
+                     "Not interesting at all",
+                     "Slightly interesting",
+                     "Moderately interesting" ,
+                     "Very interesting",
+                     "Extremely interesting")
+    )
+  ) %>%
+  group_by(key, value) %>%
+  summarise(n = n()) %>%
+  gf_tile(n ~ value + key) %>% 
+  gf_text(label = ~ n, color = "white") %>%
+  gf_theme(axis.text = element_text(angle = 20, hjust = 1)) %>%
+  gf_refine(scale_fill_viridis_c(end = 0.9)) %>%
+  gf_labs(x = "", y = "",
+          title = Questions %>% filter(qnames == "Q9") %>% pull("question"))
+
+gridify_question(Survey, "Q9") %>% 
+   mutate(
+    value = factor(value, 
+                   levels = c(
+                     "Not interesting at all",
+                     "Slightly interesting",
+                     "Moderately interesting" ,
+                     "Very interesting",
+                     "Extremely interesting")
+    )
+  ) %>%
+  gf_jitter(value ~ key, geom = "line", width = 0, height = 0.3,
+            group = ~ResponseID, color = ~ ResponseID,
+            show.legend = FALSE) %>%
+  gf_labs(x = "", y = "",
+          title = Questions %>% filter(qnames == "Q9") %>% pull("question")) %>%
+  gf_theme(axis.text = element_text(angle = 20, hjust = 1))
+```
+
+### Challenges
+
+
+
+```{r, challenges, results = "asis"}
+p(Questions %>% filter(qnames == "Q8") %>% pull("question"))
+Survey %>% pull("Q8") %>% na_rm() %>% lapply(function(x) {p(x)})
+```
+### Goals
+
+```{r, goals, results = "asis"}
+Survey %>% pull("Q11") %>% na_rm() %>% lapply(function(x) {p(x)})
+```
+
+### Dietary Restrictions
+
+```{r, dietary}
+dietary <- Survey %>% select(matches("Q12_")) %>% as.matrix() %>% as.vector() %>% na_rm() 
+dietary <- dietary[!grepl("\\(", dietary)] 
+gf_barh( substr(dietary, 1, 38) ~ .) %>% 
+  gf_labs(
+    y = "",
+    subtitle = Questions %>% filter(qnames == "Q12") %>% pull(question)
+  ) %>%
+  gf_theme(axis.text.y = element_text(angle = 20, hjust = 1)) 
+```
+
+```{r dietary-people}
+Survey %>% 
+  mutate(
+    name = paste(RecipientFirstName, RecipientLastName), 
+    dietary = gsub("\\s*NA\\s*", "", paste(Q12_1, Q12_1_TEXT, Q12_2, Q12_3, Q12_5, Q12_6, Q12_7, Q12_10, Q12_10_TEXT)),
+    dietary = substr(dietary, 1, 52) 
+    ) %>%
+  select(name,
+         email = RecipientEmail, 
+         dietary) %>%
+  filter(!is.na(dietary), nchar(dietary) > 2) 
+```
