@@ -17,15 +17,48 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ![](images/stan_wide_logo.png)
 
+## Workshop Materials
+
+* [**Questions/Comments/Answers/Responses**](https://docs.google.com/document/d/1Cfpq9_lg1ShZpinBYWqtzb6OsE5LKdbljrsJYvwaqNU/edit?usp=sharing).  
+
+    Use this google doc to comment or ask questions.  Feel free to respond to other people's questions.
+    
+* Other materials (stay tuned)
+
 ## Dates and Location
 
 Calvin College will be hosting a Stan (+R) workshop **June 10-12**.
 Sessions will begin each day at 9 am and conclude at 4 pm.  Lunch and
 mid-session refreshments will be provided.
 
-Calvin College is located in Grand Rapids, MI.
+Calvin College is located in Grand Rapids, MI.  [Campus Map](https://calvin.edu/map/?place=north-hall)
 
-[Campus Map](https://calvin.edu/map/?place=north-hall)
+There should be ample **parking** in lots 4 or 5 (the closest to North Hall).
+[Parking Lot Map](https://calvin.edu/dotAsset/f8ae2d6c-94f1-46e4-9618-4b518810b88a.pdf)
+
+## Before You Arrive
+
+To get the most out of the workshop, come with a laptop ready to use RStudio and
+Stan. (Let the organizers know ASAP if you do not have a laptop you can bring
+and we will see if we can find something for you to borrow.)  Here's is what
+should be on your laptop.
+
+  * A recent version of RStudio (1.2.x or later)
+  * A recent version of R
+  * A recent version of Stan (version 2.18.0 or above).
+      * Detailed Instructions for this are at 
+      <https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started>
+      * You can test your configuration by running one of the demo models.
+      * If you have trouble, post on the (friendly) Stan forums
+      <https://discourse.mc-stan.org> and get help before coming to the
+      workshop.
+  * The following R packages
+  
+    ```{r eval = FALSE}
+    packages <- c('bayesplot', 'loo', 'shinystan', 'rstanarm', 
+                  'brms', 'lubridate',  'rmarkdown', 'tidyverse')
+    install.packages(packages)
+    ````            
 
 
 ## Target Audience
@@ -88,30 +121,6 @@ Vianey is a statistician who does research in the area of statistical ecology,
 with a primary focus on time series modeling of animal movement data. She
 currently uses Stan to model shark and elasmobranch data in collaboration with
 the [MigraMar](http://migramar.org/hi/en/) group.
-
-## Before You Arrive
-
-To get the most out of the workshop, come with a laptop ready to use RStudio and
-Stan. (Let the organizers know ASAP if you do not have a laptop you can bring
-and we will see if we can find something for you to borrow.)  Here's is what
-should be on your laptop.
-
-  * A recent version of RStudio (1.2.x or later)
-  * A recent version of R
-  * A recent version of Stan (version 2.18.0 or above).
-      * Detailed Instructions for this are at 
-      <https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started>
-      * You can test your configuration by running one of the demo models.
-      * If you have trouble, post on the (friendly) Stan forums
-      <https://discourse.mc-stan.org> and get help before coming to the
-      workshop.
-  * The following R packages
-  
-    ```{r eval = FALSE}
-    packages <- c('bayesplot', 'loo', 'shinystan', 'rstanarm', 
-                  'brms', 'lubridate',  'rmarkdown', 'tidyverse')
-    install.packages(packages)
-    ````            
 
 ## Lodging and Transportation
 
