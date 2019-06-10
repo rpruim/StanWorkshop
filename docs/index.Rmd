@@ -20,6 +20,10 @@ h3 {
   font-size: 110%;
   color: #993333;
 }
+
+h4 {
+  font-size: 105%;
+}
 </style>
 
 ![](images/stan_wide_logo.png)
