@@ -26,7 +26,14 @@ knitr::opts_chunk$set(echo = TRUE)
 * [Workshop Participants](https://docs.google.com/document/d/1bZkLAZqAhwgsyZS0HO8_YLU0Li97LxNqBZYgXCZNRQw/edit?usp=sharing)
 
 
-* Other materials (stay tuned)
+### Data Sets
+
+* [pest_data](/course-materials/data/pest_data.RDS)
+* [pest_data_longer_stan_dat](/course-materials/data/pest_data_longer_stan_dat.RDS)
+
+### Slides
+
+* [Stan and Workflow](/course-materials/slides/stan-and-workflow.pdf)
 
 ## Dates and Location
 
