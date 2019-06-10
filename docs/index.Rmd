@@ -58,9 +58,10 @@ Put these in a folder called `data`:
 
 Put these in a folder called `stan_programs`: 
 
+* [simple_poisson_regression-starter.stan](course-materials/stan_programs/simple_poisson_regression-starter.stan)
+* [simple_poisson_regression-solution.stan](course-materials/stan_programs/simple_poisson_regression-solution.stan)
 * [multiple_NB_regression_dgp.stan](course-materials/stan_programs/multiple_NB_regression_dgp.stan)
 * [multiple_poisson_regression_dgp.stan](course-materials/stan_programs/multiple_poisson_regression_dgp.stan)
-* [simple_poisson_regression.stan](course-materials/stan_programs/simple_poisson_regression.stan)
 * [simple_poisson_regression_dgp.stan](course-materials/stan_programs/simple_poisson_regression_dgp.stan)
 
 ## Other Stan Resources
