@@ -38,6 +38,11 @@ h3 {
 * [Stan and Workflow](course-materials/slides/stan-and-workflow.pdf)
 * [Stan R Ecosystem](course-materials/slides/stan-r-ecosystem.pdf)
 
+
+### Main R markdown document
+
+* [Pest_Control_Example.Rmd](/course-materials/Pest_Control_Example.Rmd)
+
 ### Data Sets
 
 Put these in a folder called `data`: 
