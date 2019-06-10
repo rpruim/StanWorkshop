@@ -33,7 +33,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Slides
 
-* [Stan and Workflow](/course-materials/slides/stan-and-workflow.pdf)
+* [Stan and Workflow](course-materials/slides/stan-and-workflow.pdf)
+* [Stan R Ecosystem](course-materials/slides/stan-r-ecosystem.pdf)
+
+### Stan Programs
+
+
+* [multiple_NB_regression_dgp.stan](course-materials/stan_programs/multiple_NB_regression_dgp.stan)
+* [multiple_poisson_regression_dgp.stan](course-materials/stan_programs/multiple_poisson_regression_dgp.stan)
+* [simple_poisson_regression.stan](course-materials/stan_programs/simple_poisson_regression.stan)
+* [simple_poisson_regression2.stan](course-materials/stan_programs/simple_poisson_regression2.stan)
+* [simple_poisson_regression_dgp.stan](course-materials/stan_programs/simple_poisson_regression_dgp.stan)
 
 ## Dates and Location
 
