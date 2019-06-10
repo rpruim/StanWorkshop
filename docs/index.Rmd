@@ -45,7 +45,7 @@ h4 {
 
 ### Main R markdown document
 
-* [Pest_Control_Example.Rmd](/course-materials/Pest_Control_Example.Rmd)
+* [Pest_Control_Example.Rmd](https://raw.githubusercontent.com/rpruim/StanWorkshop/master/docs/course-materials/Pest_Control_Example.Rmd) [right click to download]
 
 ### Data Sets
 
