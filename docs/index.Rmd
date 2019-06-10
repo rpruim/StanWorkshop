@@ -44,15 +44,18 @@ h4 {
 
 ### Data Sets
 
+Put these in a folder called `data`: 
+
 * [pest_data.RDS](/course-materials/data/pest_data.RDS)
 * [pest_data_longer_stan_dat.RDS](/course-materials/data/pest_data_longer_stan_dat.RDS)
 
 ### Stan Programs
 
+Put these in a folder called `stan_programs`: 
+
 * [multiple_NB_regression_dgp.stan](course-materials/stan_programs/multiple_NB_regression_dgp.stan)
 * [multiple_poisson_regression_dgp.stan](course-materials/stan_programs/multiple_poisson_regression_dgp.stan)
 * [simple_poisson_regression.stan](course-materials/stan_programs/simple_poisson_regression.stan)
-* [simple_poisson_regression2.stan](course-materials/stan_programs/simple_poisson_regression2.stan)
 * [simple_poisson_regression_dgp.stan](course-materials/stan_programs/simple_poisson_regression_dgp.stan)
 
 ## Other Stan Resources
@@ -61,7 +64,9 @@ Additional resources will be posted here.
 
 ### Jonah's Reading List
 
-* [Jonah's GitHub Repositories](https://github.com/jgabry?tab=repositories)
+* [Jonah's GitHub](https://github.com/jgabry)
+* [Visualization in Bayesian Workflow](https://github.com/jgabry/bayes-vis-paper)
+* More later in the workshop
 
 ### Teaching Resources
 
