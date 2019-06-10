@@ -32,8 +32,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Data Sets
 
-* [pest_data](/course-materials/data/pest_data.RDS)
-* [pest_data_longer_stan_dat](/course-materials/data/pest_data_longer_stan_dat.RDS)
+* [pest_data.RDS](/course-materials/data/pest_data.RDS)
+* [pest_data_longer_stan_dat.RDS](/course-materials/data/pest_data_longer_stan_dat.RDS)
 
 ### Stan Programs
 
