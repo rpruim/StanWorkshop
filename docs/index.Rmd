@@ -43,6 +43,12 @@ knitr::opts_chunk$set(echo = TRUE)
 * [simple_poisson_regression2.stan](course-materials/stan_programs/simple_poisson_regression2.stan)
 * [simple_poisson_regression_dgp.stan](course-materials/stan_programs/simple_poisson_regression_dgp.stan)
 
+### Other Resources/Reading List
+
+Additional resources will be posted here.
+
+---
+
 ## Dates and Location
 
 Calvin College will be hosting a Stan (+R) workshop **June 10-12**.
