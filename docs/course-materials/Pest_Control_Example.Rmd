@@ -208,7 +208,7 @@ N <- nrow(pest_data)
 alpha_prior <- rnorm(1, mean = log(4), sd = .1)
 beta_prior <- rnorm(1, mean = -0.25, sd = .1)
 traps_sim <- rpois(N, lambda = mean(pest_data$traps))
-complaints_sim <- rpois(N, lambda = exp(alpha + beta * traps_sim))
+complaints_sim <- rpois(N, lambda = exp(alpha_prior + beta_prior * traps_sim))
 
 samps_dgp <- list(
   alpha = alpha_prior, 
