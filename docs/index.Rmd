@@ -23,6 +23,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
     Use this google doc to comment or ask questions.  Feel free to respond to other people's questions.
     
+* [Workshop Participants](https://docs.google.com/document/d/1bZkLAZqAhwgsyZS0HO8_YLU0Li97LxNqBZYgXCZNRQw/edit?usp=sharing)
+
+
 * Other materials (stay tuned)
 
 ## Dates and Location
