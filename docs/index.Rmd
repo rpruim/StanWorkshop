@@ -15,15 +15,23 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+<style>
+h3 {
+  font-size: 110%;
+  color: #993333;
+}
+</style>
+
 ![](images/stan_wide_logo.png)
 
 ## Workshop Materials
 
+
+* [Workshop Participants](https://docs.google.com/document/d/1bZkLAZqAhwgsyZS0HO8_YLU0Li97LxNqBZYgXCZNRQw/edit?usp=sharing)
+
 * [**Questions/Comments/Answers/Responses**](https://docs.google.com/document/d/1Cfpq9_lg1ShZpinBYWqtzb6OsE5LKdbljrsJYvwaqNU/edit?usp=sharing).  
 
     Use this google doc to comment or ask questions.  Feel free to respond to other people's questions.
-    
-* [Workshop Participants](https://docs.google.com/document/d/1bZkLAZqAhwgsyZS0HO8_YLU0Li97LxNqBZYgXCZNRQw/edit?usp=sharing)
 
 ### Slides
 
@@ -43,16 +51,15 @@ knitr::opts_chunk$set(echo = TRUE)
 * [simple_poisson_regression2.stan](course-materials/stan_programs/simple_poisson_regression2.stan)
 * [simple_poisson_regression_dgp.stan](course-materials/stan_programs/simple_poisson_regression_dgp.stan)
 
-### Other Stan Resources
+## Other Stan Resources
 
 Additional resources will be posted here.
 
-#### Jonah's Reading List
+### Jonah's Reading List
 
 * [Jonah's GitHub Repositories](https://github.com/jgabry?tab=repositories)
 
-#### Teaching Resources
-
+### Teaching Resources
 
 ---
 
