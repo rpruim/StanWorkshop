@@ -64,8 +64,8 @@ Put these in a folder called `stan_programs`:
 * [multiple_poisson_regression_dgp.stan](course-materials/stan_programs/multiple_poisson_regression_dgp.stan)
 * [simple_poisson_regression_dgp.stan](course-materials/stan_programs/simple_poisson_regression_dgp.stan)
 
-* [mutiple_poisson_regression.stan](course-materials/stan_programs/mutiple_poisson_regression.stan)
-* [mutiple_NB_regression.stan](course-materials/stan_programs/mutiple_NB_regression.stan)
+* [multiple_poisson_regression.stan](course-materials/stan_programs/multiple_poisson_regression.stan)
+* [multiple_NB_regression.stan](course-materials/stan_programs/multiple_NB_regression.stan)
 
 ## Other Stan Resources
 
