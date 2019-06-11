@@ -45,22 +45,23 @@ h4 {
 
 ### Main R markdown document
 
-* [Pest_Control_Example.Rmd](/course-materials/Pest_Control_Example.Rmd)
+* [Pest_Control_Example.Rmd](https://raw.githubusercontent.com/rpruim/StanWorkshop/master/docs/course-materials/Pest_Control_Example.Rmd) [right click to download]
 
 ### Data Sets
 
 Put these in a folder called `data`: 
 
-* [pest_data.RDS](/course-materials/data/pest_data.RDS)
-* [pest_data_longer_stan_dat.RDS](/course-materials/data/pest_data_longer_stan_dat.RDS)
+* [pest_data.RDS](course-materials/data/pest_data.RDS)
+* [pest_data_longer_stan_dat.RDS](course-materials/data/pest_data_longer_stan_dat.RDS)
 
 ### Stan Programs
 
 Put these in a folder called `stan_programs`: 
 
+* [simple_poisson_regression-starter.stan](course-materials/stan_programs/simple_poisson_regression-starter.stan)
+* [simple_poisson_regression-solution.stan](course-materials/stan_programs/simple_poisson_regression-solution.stan)
 * [multiple_NB_regression_dgp.stan](course-materials/stan_programs/multiple_NB_regression_dgp.stan)
 * [multiple_poisson_regression_dgp.stan](course-materials/stan_programs/multiple_poisson_regression_dgp.stan)
-* [simple_poisson_regression.stan](course-materials/stan_programs/simple_poisson_regression.stan)
 * [simple_poisson_regression_dgp.stan](course-materials/stan_programs/simple_poisson_regression_dgp.stan)
 
 * [mutiple_poisson_regression.stan](course-materials/stan_programs/mutiple_poisson_regression.stan)
@@ -77,6 +78,19 @@ Additional resources will be posted here.
 * More later in the workshop
 
 ### Teaching Resources
+
+
+* *Statistical Rethinking* by McElreath
+    * [book website](https://xcelab.net/rm/statistical-rethinking/)
+        (2nd edition in the works)
+    * [companion notes by R Pruim]()
+        * [fork of rethinking package](https://github.com/rpruim/rethinking) -- but note that there is work being done on the official rethinking package, so this may not be so useful anymore.
+    * [companion notes by using brms](https://bookdown.org/ajkurz/Statistical_Rethinking_recoded/)
+
+* *Doing Bayesian Data Analysis* by Kruschke
+    * [book website](https://sites.google.com/site/doingbayesiandataanalysis/)
+    * [companion notes by R Pruim](https://rpruim.github.io/Kruschke-Notes/)
+
 
 ---
 
