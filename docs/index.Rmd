@@ -79,6 +79,7 @@ Additional resources will be posted here.
 
 * [Jonah's GitHub](https://github.com/jgabry)
 * [Visualization in Bayesian Workflow](https://github.com/jgabry/bayes-vis-paper)
+* [MCMC interactive gallery (movies!)](https://chi-feng.github.io/mcmc-demo/)
 * More later in the workshop
 
 ### Teaching Resources
