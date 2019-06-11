@@ -76,6 +76,18 @@ Additional resources will be posted here.
 
 ### Teaching Resources
 
+
+* *Statistical Rethinking* by McElreath
+    * [book website](https://xcelab.net/rm/statistical-rethinking/)
+        (2nd edition in the works)
+    * [companion notes by R Pruim]()
+        * [fork of rethinking package](https://github.com/rpruim/rethinking)
+    * [companion notes by using brms](https://bookdown.org/ajkurz/Statistical_Rethinking_recoded/)
+
+* *Doing Bayesian Data Analysis* by Kruschke
+    * [book website](https://sites.google.com/site/doingbayesiandataanalysis/)
+    * [companion notes by R Pruim](https://rpruim.github.io/Kruschke-Notes/)
+
 ---
 
 ## Dates and Location
