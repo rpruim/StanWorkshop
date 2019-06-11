@@ -24,25 +24,25 @@ parameters {
 }
 model {
   // add new predictors to expression for eta
-  vector[N] eta = 
-    alpha + 
+  vector[N] eta =
+    alpha +
     beta * traps +
     beta_super * live_in_super +
     log_sq_foot;
-  
+
   complaints ~ poisson_log(eta);
-  
+
   beta ~ normal(-0.25, 1);
   alpha ~ normal(log(4), 1);
   beta_super ~ normal(-0.5, 1);
-} 
+}
 generated quantities {
   int y_rep[N];
   for (n in 1:N) {
     y_rep[n] = poisson_log_safe_rng(
-      alpha + 
-      beta * traps[n] + 
-      beta_super * live_in_super[n] + 
+      alpha +
+      beta * traps[n] +
+      beta_super * live_in_super[n] +
       log_sq_foot[n]
     );
   }
