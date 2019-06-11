@@ -58,14 +58,18 @@ Put these in a folder called `data`:
 
 Put these in a folder called `stan_programs`: 
 
+#### Monday afternoon
+
 * [simple_poisson_regression-starter.stan](course-materials/stan_programs/simple_poisson_regression-starter.stan)
 * [simple_poisson_regression-solution.stan](course-materials/stan_programs/simple_poisson_regression-solution.stan)
 * [multiple_NB_regression_dgp.stan](course-materials/stan_programs/multiple_NB_regression_dgp.stan)
 * [multiple_poisson_regression_dgp.stan](course-materials/stan_programs/multiple_poisson_regression_dgp.stan)
 * [simple_poisson_regression_dgp.stan](course-materials/stan_programs/simple_poisson_regression_dgp.stan)
 
-* [mutiple_poisson_regression.stan](course-materials/stan_programs/mutiple_poisson_regression.stan)
-* [mutiple_NB_regression.stan](course-materials/stan_programs/mutiple_NB_regression.stan)
+#### Tuesday morning
+
+* [mutiple_poisson_regression.stan](course-materials/stan_programs/multiple_poisson_regression.stan)
+* [mutiple_NB_regression.stan](course-materials/stan_programs/multiple_NB_regression.stan)
 
 ## Other Stan Resources
 
