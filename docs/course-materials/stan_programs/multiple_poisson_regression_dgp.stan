@@ -11,7 +11,6 @@ generated quantities {
   real alpha = normal_rng(log(4), .1);
   real beta = normal_rng(-0.25, .1);
   real beta_super = normal_rng(-0.5, .1);
-
   for (n in 1:N) {
     log_sq_foot[n] = normal_rng(1.5, .1);
     live_in_super[n] = bernoulli_rng(0.5);

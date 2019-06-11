@@ -22,24 +22,25 @@ parameters {
   real alpha;
   real beta;
   real beta_super;
-  // declare 1/phi as parameter
+  real<lower=0> inv_phi;
 }
 transformed parameters {
-  // calculate phi
+  real phi = inv(inv_phi); 
+  // real phi = 1 / inv_phi;
 }
 model {
   vector[N] eta = alpha + beta * traps + beta_super * live_in_super
                                   + log_sq_foot;
                              
   // change to negative binomial (neg_binomial_2_log)                          
-  complaints ~ poisson_log(eta);   
+  complaints ~ neg_binomial_2_log(eta, phi);
   
   alpha ~ normal(log(4), 1);
   beta ~ normal(-0.25, 1);
   beta_super ~ normal(-0.5, 1);
   
   // prior on inv_phi
-  
+  inv_phi ~ normal(0, 1);
 } 
 generated quantities {
   int y_rep[N];
@@ -48,6 +49,4 @@ generated quantities {
                   + log_sq_foot[n];
     y_rep[n] = neg_binomial_2_log_safe_rng(eta_n, phi);
   }
-  
 }
-
