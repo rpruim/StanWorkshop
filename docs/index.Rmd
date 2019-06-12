@@ -81,7 +81,11 @@ Put these in a folder called `stan_programs`:
 * [hier_NB_regression_ncp_slopes_mod.stan](course-materials/stan_programs/hier_NB_regression_ncp_slopes_mod.stan)
 * [hier_NB_regression_ncp_slopes_mod_mos.stan](course-materials/stan_programs/hier_NB_regression_ncp_slopes_mod_mos.stan)
 
+#### Wednesday afternoon
 
+* [hier_NB_regression_ncp_slopes_mod_mos_predict.stan](course-materials/stan_programs/hier_NB_regression_ncp_slopes_mod_mos_predict.stan)
+
+* [hier_NB_regression_ncp_slopes_mod_mos_gp.stan](course-materials/stan_programs/hier_NB_regression_ncp_slopes_mod_mos_gp.stan)
 
 
 
