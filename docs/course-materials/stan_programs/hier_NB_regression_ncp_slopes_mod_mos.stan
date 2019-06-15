@@ -1,3 +1,6 @@
+// Negative binomial regression with varying intercepts, varying slopes, 
+// and latent time trend
+
 functions {
   /*
   * Alternative to neg_binomial_2_log_rng() that 
@@ -25,8 +28,7 @@ data {
   int<lower=1, upper=J> building_idx[N];
   matrix[J,K] building_data;
   
-  // month info
-  // ... Number of months (M) and month indexes (mo_idx)
+  // month data
   int<lower=1> M;
   int<lower=1,upper=M> mo_idx[N];
 }
@@ -44,11 +46,9 @@ parameters {
   vector[K] gamma;           // coefficients on building-level predictors in model for kappa
   
   
-  real<lower=0,upper=1> rho_raw;  // used to construct rho, the AR(1) coefficient
-  // N(0,1) params for non-centered param of AR(1) process (mo_raw)
-  vector[M] mo_raw;
-  // sd of month-specific parameters (sigma_mo)
-  real<lower=0> sigma_mo;
+  real<lower=0,upper=1> rho_raw; // used to construct rho, the AR(1) coefficient
+  vector[M] mo_raw;              // N(0,1) params for non-centered param of AR(1)
+  real<lower=0> sigma_mo;        // sd of month-specific parameters (sigma_mo)
 }
 transformed parameters {
   real phi = inv(inv_phi);
@@ -57,13 +57,12 @@ transformed parameters {
   vector[J] mu = alpha + building_data * zeta + sigma_mu * mu_raw;
   vector[J] kappa = beta + building_data * gamma + sigma_kappa * kappa_raw;
   
-  // AR(1) process priors
-  real rho = 2.0 * rho_raw - 1;
-  vector[M] mo = sigma_mo * mo_raw;
-  mo[1] /= sqrt(1 - rho^2); //mo[1] = mo[1] / sqrt(1 - rho^2)
+  // non-centered parameterization of AR(1) process priors
+  real rho = 2 * rho_raw - 1;      // ensures that rho is between -1 and 1
+  vector[M] mo = sigma_mo * mo_raw;  // all of them share this term 
+  mo[1] /= sqrt(1 - rho^2);          // mo[1] = mo[1] / sqrt(1 - rho^2)
   for (m in 2:M) {
-    mo[m] += rho * mo[m-1];
-    //mo[m] = mo[m] + rho * mo[m-1];
+    mo[m] += rho * mo[m-1];          // mo[m] = mo[m] + rho * mo[m-1];
   }
 }
 model {

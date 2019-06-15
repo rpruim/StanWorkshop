@@ -34,10 +34,12 @@ data {
   vector[J] log_sq_foot_pred;
 }
 transformed data {
-  // We'll make predictions for 0, 1, 2, ..., 20 traps (can go further too)
-  int N_hypo_traps = 21;
-  int hypo_traps[N_hypo_traps];
+  // We'll make predictions for traps in {0,1,...,20}, but could go further
+  int N_hypo_traps = 21;         // Number of traps values at which we'll make predictions
+  int hypo_traps[N_hypo_traps];  // Could also have used the 'vector' type here
   for (i in 1:N_hypo_traps) {
+    // this loop is just making a sequence from 0 to 20
+    // could do it in R but I wanted to demonstrate transformed data block
     hypo_traps[i] = i - 1;  
   }
 }
@@ -66,12 +68,12 @@ transformed parameters {
   vector[J] mu = alpha + building_data * zeta + sigma_mu * mu_raw;
   vector[J] kappa = beta + building_data * gamma + sigma_kappa * kappa_raw;
   
-  // AR(1) process priors
-  real rho = 2.0 * rho_raw - 1.0;
-  vector[M] mo = sigma_mo * mo_raw;
-  mo[1] /= sqrt(1 - rho^2);
+  // non-centered parameterization of AR(1) process priors
+  real rho = 2 * rho_raw - 1;      // ensures that rho is between -1 and 1
+  vector[M] mo = sigma_mo * mo_raw;  // all of them share this term 
+  mo[1] /= sqrt(1 - rho^2);          // mo[1] = mo[1] / sqrt(1 - rho^2)
   for (m in 2:M) {
-    mo[m] += rho * mo[m-1];
+    mo[m] += rho * mo[m-1];          // mo[m] = mo[m] + rho * mo[m-1];
   }
 }
 model {
@@ -91,19 +93,18 @@ model {
   sigma_mo ~ normal(0, 1);
   rho_raw ~ beta(10, 5);
   
-
-  { 
-  // within a local block we can declare new temporary variables  
-  vector[N] eta = mu[building_idx] + kappa[building_idx] .* traps + mo[mo_idx] + log_sq_foot;
-  complaints ~ neg_binomial_2_log(eta, phi);
+  { // start local block/scope just for demonstration purposes
   
-  /* 
-  alternatively we can use a 'target +=' statement, which is equivalent to 
-  above except that using '~' drops constants that don't affect inferences:
-  
-  target += neg_binomial_2_log_lpmf(complaints | eta, phi);
+   /* 
+     new variables need to be declared at the top of the block unless they are 
+     declared within a local scope (within curly braces). this is sometimes useful
+     in the model block to declare and define temporary variables closer to where 
+     we use them. 
   */
-  }
+   vector[N] eta = mu[building_idx] + kappa[building_idx] .* traps + mo[mo_idx] + log_sq_foot;
+   complaints ~ neg_binomial_2_log(eta, phi);
+   
+  } // end local block/scope
   
 }
 generated quantities {
@@ -130,11 +131,15 @@ generated quantities {
         y_pred_by_month[m] = neg_binomial_2_log_safe_rng(eta, phi);
       }
       
+      // total number of predicted complaints for building j with i traps
       y_pred[j,i] = sum(y_pred_by_month);
       
       // were were told every 10 complaints has additional exterminator cost of $100, 
-      // so $10 lose per complaint.
-      rev_pred[j,i] = y_pred[j,i] * (-10.0);
+      // an average loss of $10 per complaint (could also do this part in R)
+      rev_pred[j,i] = -10 * y_pred[j,i]; 
+      
+      // actually it would probably be a better idea to not average and compute it exactly:
+      // rev_pred[j,i] = -10 * floor(y_pred[j,i] / 10.0);
     }
   }
 }

@@ -1,3 +1,5 @@
+// Negative binomial regression with varying intercepts
+
 functions {
   /*
   * Alternative to neg_binomial_2_log_rng() that 
@@ -20,8 +22,8 @@ data {
   vector[N] log_sq_foot;  
   
   // building-level data
-  int<lower=1> K;
-  int<lower=1> J;
+  int<lower=1> J; // Number of buildings
+  int<lower=1> K; // Number of building-level predictor variables
   int<lower=1, upper=J> building_idx[N];
   matrix[J,K] building_data;
 }
@@ -31,7 +33,7 @@ parameters {
   
   vector[J] mu;            // buildings-specific intercepts
   real<lower=0> sigma_mu;  // sd of building-specific intercepts
-  real alpha;              // intercept of model for mu
+  real alpha;              // intercept in model for mu
   vector[K] zeta;          // coefficients on building-level predictors in model for mu 
 }
 transformed parameters {
