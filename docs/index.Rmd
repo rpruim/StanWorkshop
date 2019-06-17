@@ -45,7 +45,13 @@ h4 {
 
 ### Main R markdown document
 
+Rmd:   
+
 * [Pest_Control_Example.Rmd](https://raw.githubusercontent.com/rpruim/StanWorkshop/master/docs/course-materials/Pest_Control_Example.Rmd) [right click to download]
+
+HTML:       
+
+* [Pest_Control_Example.html](https://raw.githubusercontent.com/rpruim/StanWorkshop/master/docs/course-materials/Pest_Control_Example.html) [right click to download]
 
 ### Data Sets
 
@@ -84,8 +90,7 @@ Put these in a folder called `stan_programs`:
 #### Wednesday afternoon
 
 * [hier_NB_regression_ncp_slopes_mod_mos_predict.stan](course-materials/stan_programs/hier_NB_regression_ncp_slopes_mod_mos_predict.stan)
-
-* [hier_NB_regression_ncp_slopes_mod_mos_gp.stan](course-materials/stan_programs/hier_NB_regression_ncp_slopes_mod_mos_gp.stan)
+* [hier_NB_regression_ncp_slopes_mod_mos_gp.stan](course-materials/stan_programs/hier_NB_regression_ncp_slopes_mod_mos_gp.stan) (for the Gaussian process section at end of Rmd file)
 
 
 
