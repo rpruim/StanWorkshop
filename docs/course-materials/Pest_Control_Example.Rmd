@@ -1,16 +1,16 @@
 ---
-title: "Calvin College 2019"
+title: "Stan Workshop at Calvin College"
 author: ""
-date: "`r Sys.Date()`"
+date: "June 2019"
 output:
-  html_notebook:
+  html_document:
     toc: true
     toc_depth: 2
 ---
 
 ## Setup
 
-```{r setup}
+```{r setup, results="hide"}
 knitr::opts_chunk$set(
   echo = TRUE, 
   dev = "png",
@@ -26,7 +26,7 @@ library(bayesplot)
 
 theme_set(bayesplot::theme_default())
 
-# seed for R's pseudo-RNGs, not Stan's
+# seed for R's pseudo-RNGs (not Stan's)
 set.seed(1123) 
 ```
 
@@ -123,15 +123,17 @@ N_buildings
 
 And make some plots of the raw data: 
 
-```{r data-plots}
+```{r data-plot-1}
 ggplot(pest_data, aes(x = complaints)) + 
   geom_bar()
+```
 
+```{r data-plot-2}
 ggplot(pest_data, aes(x = traps, y = complaints, color = live_in_super == TRUE)) + 
   geom_jitter()
 ```
 
-```{r, data-plots-ts, fig.width = 6, fig.height = 8}
+```{r, data-plot-ts, fig.width = 6, fig.height = 8}
 ggplot(pest_data, aes(x = date, y = complaints, color = live_in_super == TRUE)) + 
   geom_line(aes(linetype = "Number of complaints")) + 
   geom_point(color = "black") + 
@@ -146,10 +148,9 @@ ggplot(pest_data, aes(x = date, y = complaints, color = live_in_super == TRUE)) 
 
 The first question we'll look at is just whether the number of complaints per
 building per month is associated with the number of bait stations per building
-per month, ignoring the temporal and across-building variation (we'll come back
-to those sources of variation later in the document). That requires only two
-variables, $\textrm{complaints}$ and $\textrm{traps}$. How should we model the
-number of complaints?
+per month, ignoring the temporal and across-building variation (we'll get to
+that later). This requires only two variables, $\textrm{complaints}$ and
+$\textrm{traps}$. How should we model the number of complaints?
 
 
 ## Bayesian workflow
@@ -173,9 +174,9 @@ to the data.
 
 Given that we have chosen a Poisson regression, we define the likelihood to be
 the Poisson probability mass function over the number bait stations placed in
-the building, denoted below as `traps`. This model assumes that the mean and
-variance of the outcome variable `complaints` (number of complaints) is the
-same. We'll investigate whether this is a good assumption after we fit the 
+the building, denoted below as `traps`. This model assumes that the conditional
+mean and variance of the outcome variable `complaints` (number of complaints) is
+the same. We'll investigate whether this is a good assumption after we fit the
 model.
 
 For building $b = 1,\dots,10$ at time (month) $t = 1,\dots,12$, we have
@@ -196,10 +197,11 @@ Let's encode this probability model in a Stan program.
 
 ### Making sure our code is right
 
-However, before we fit the model to real data, we should check that our
-model works well with simulated data. We'll simulate data according to the model
-and then check that we can sufficiently recover the parameter values used
-in the simulation.
+However, before we fit the model to real data, we should check that our model
+works well with simulated data. We'll simulate data according to the model and
+then check that we can sufficiently recover the parameter values used in the
+simulation (ideally we would do this for many different draws from the prior).
+You can think of this step as software testing.
 
 In R we can simulate data like this: 
 ```{r}
@@ -218,7 +220,7 @@ samps_dgp <- list(
 )
 ```
 
-But We can also use Stan to simulate the fake data: 
+But we can also use Stan to simulate the fake data: 
 
 * Write `simple_poisson_regression_dgp.stan` together
 
@@ -245,13 +247,12 @@ Now we can simulate the data by calling the `sampling()` function.
 fitted_model_dgp <- sampling(
   comp_dgp_simple,
   data = list(N = nrow(pest_data), mean_traps = mean(pest_data$traps)),
+  algorithm = 'Fixed_param', # set this if there's no parameter block
+  seed = 123,
   chains = 1,
-  iter = 1,
-  algorithm = 'Fixed_param',
-  seed = 123
-  )
+  iter = 1) # we'll just use 1 simulated data set but you can (and should!) use more
 
-# see http://mc-stan.org/rstan/articles/stanfit_objects.html for various
+# see https://mc-stan.org/rstan/articles/stanfit_objects.html for various
 # ways of extracting the contents of the stanfit object
 samps_dgp <- rstan::extract(fitted_model_dgp)
 str(samps_dgp)
@@ -302,7 +303,7 @@ to get a sense for the variety of the data that can be generated from the model.
 We should also check if the `y_rep` datasets (in-sample predictions) that we coded 
 in the `generated quantities` block are similar to the `y` (complaints) values
 we conditioned on when fitting the model. (The **bayesplot**
-package [vignettes](http://mc-stan.org/bayesplot/articles/graphical-ppcs.html)
+package [vignettes](https://mc-stan.org/bayesplot/articles/graphical-ppcs.html)
 are a good resource on this topic.)
 
 Here is a plot of the density estimate of the observed data compared to 
@@ -351,10 +352,14 @@ str(stan_dat_simple)
 As we have already compiled the model, we can jump straight to sampling from it.
 
 ```{r fit_P_real_data, cache=TRUE}
-fit_P_real_data <- sampling(comp_model_P, data = stan_dat_simple)
+fit_P_real_data <- sampling(comp_model_P, data = stan_dat_simple, 
+                            # these are the defaults but specifying them anyway
+                            # so you can see how to use them: 
+                            # posterior sample size = chains * (iter-warmup)
+                            chains = 4, iter = 2000, warmup = 1000)
 ```
 
-and printing the parameters. What do these tell us? 
+Print the summary of the intercept and slope parameters: 
 
 ```{r results_simple_P}
 print(fit_P_real_data, pars = c('alpha','beta'))
@@ -397,24 +402,14 @@ The plot above shows the observed proportion of zeros (thick vertical line) and
 a histogram of the proportion of zeros in each of the simulated data sets. It is
 clear that the model does not capture this feature of the data well at all.
 
-This next plot is a plot of the standardised residuals of the observed vs predicted number of complaints. 
+
+The rootogram is sometimes a useful plot to compare the observed vs expected
+number of complaints (on the square-root scale to make large differences easier
+to plot). This is a plot of the square root of the expected counts (continuous
+line and interval) vs the observed counts (blue histogram):
 
 ```{r}
-mean_y_rep <- colMeans(y_rep)
-std_resid <- (stan_dat_simple$complaints - mean_y_rep) / sqrt(mean_y_rep)
-qplot(mean_y_rep, std_resid) + hline_at(2) + hline_at(-2)
-```
-
-As you can see here, it looks as though we have more positive residuals than negative,
-which indicates that the model tends to underestimate the number of complaints
-that will be received.
-
-The rootogram is another useful plot to compare the observed vs expected number
-of complaints. This is a plot of the expected counts (continuous line) vs the
-observed counts (blue histogram):
-
-```{r}
-ppc_rootogram(stan_dat_simple$complaints, yrep = y_rep)
+ppc_rootogram(y = stan_dat_simple$complaints, yrep = y_rep, prob = 0.9)
 ```
 
 If the model was fitting well these would be relatively similar, however in this
@@ -427,12 +422,18 @@ of traps. From this we can see that the model doesn't seem to fully capture the
 data.
 
 ```{r}
+# Note: the jitter argument will be ignored unless you install a development
+# version of bayesplot from GitHub: 
+# devtools::install_github("stan-dev/bayesplot", ref = "ppd-functions")
 ppc_intervals(
   y = stan_dat_simple$complaints, 
   yrep = y_rep,
-  x = stan_dat_simple$traps
+  x = stan_dat_simple$traps,
+  # jitter helps since we have multiple observations at each (or many) values of x
+  jitter = 0.1
 ) + 
-  labs(x = "Number of traps", y = "Number of complaints")
+  labs(x = "Number of traps", 
+       y = "Predicted number of complaints")
 ```
 
 Specifically, the model doesn't capture the tails of the observed data very
@@ -517,8 +518,8 @@ fitted_model_dgp <-
   sampling(
   comp_dgp_multiple,
   data = list(N = nrow(pest_data)),
+  refresh = 0, # suppress progress output from Stan
   chains = 1,
-  cores = 1,
   iter = 1,
   algorithm = 'Fixed_param',
   seed = 123
@@ -542,7 +543,12 @@ And then compile and fit the model we wrote for the multiple regression.
 
 ```{r, cache=TRUE, message=FALSE, warning=FALSE}
 comp_model_P_mult <- stan_model('stan_programs/multiple_poisson_regression.stan')
-fit_model_P_mult <- sampling(comp_model_P_mult, data = stan_dat_fake, chains = 4, cores = 4)
+fit_model_P_mult <-
+  sampling(
+    comp_model_P_mult,
+    data = stan_dat_fake,
+    refresh = 0 # suppress progress ouput from Stan
+  )
 ```
 
 Then compare these parameters to the true parameters:
@@ -562,11 +568,17 @@ Now let's use the real data and explore the fit.
 
 ```{r fit_mult_P_real_dat}
 fit_model_P_mult_real <- sampling(comp_model_P_mult, data = stan_dat_simple, 
-                                  refresh = 0) # turn off printed progress updates
+                                  refresh = 0) 
 
+```
+
+```{r}
 y_rep <- as.matrix(fit_model_P_mult_real, pars = "y_rep")
 ppc_dens_overlay(stan_dat_simple$complaints, y_rep[1:200,])
 
+# in this case we have very high effective sample sizes, but if there is
+# nontrivial autocorrelation then it's better to take a random sample of the draws, 
+# for example:
 ids <- sample(nrow(y_rep), size = 200)
 ppc_dens_overlay(stan_dat_simple$complaints, y_rep[ids, ])
 ```
@@ -574,6 +586,7 @@ ppc_dens_overlay(stan_dat_simple$complaints, y_rep[ids, ])
 This again looks like we haven't captured the smaller counts very well, nor
 have we captured the larger counts.
 
+We're still severely underestimating the proportion of zeros in the data:
 
 ```{r}
 prop_zero <- function(x) mean(x == 0)
@@ -585,8 +598,7 @@ ppc_stat(
 )
 ```
 
-We're still severely underestimating the proportion of zeros in the data. Ideally
-this vertical line would fall somewhere within the histogram.
+Ideally this vertical bar would fall somewhere within the histogram.
 
 We can also plot uncertainty intervals for the predicted complaints for different
 numbers of traps.
@@ -595,9 +607,13 @@ numbers of traps.
 ppc_intervals(
   y = stan_dat_simple$complaints, 
   yrep = y_rep,
-  x = stan_dat_simple$traps
+  x = stan_dat_simple$traps,
+  # jitter will be ignored without dev version of bayesplot 
+  # (see instructions above the first time ppc_intervals is used)
+  jitter = 0.2
 ) + 
-  labs(x = "Number of traps", y = "Number of complaints")
+  labs(x = "Number of traps", 
+       y = "Predicted number of complaints")
 ```
 
 We can see that we've increased the tails a bit more at the larger numbers of traps
@@ -909,8 +925,9 @@ fitted_model_NB_hier <-
   sampling(
     comp_model_NB_hier,
     data = stan_dat_hier,
-    cores = 4,
-    iter = 4000
+    iter = 4000, 
+    cores = 4, # can run chains in parallel 
+    refresh = 1000 # only report progress every 1000 iterations
   )
 ```
 
@@ -952,7 +969,7 @@ to reparameterize, but it indicates that we should look further at the trace
 plots and pairs plots. First let's look at the traceplots to see if the divergent
 transitions form a pattern.
 
-```{r}
+```{r, traceplot-with-divs}
 # use as.array to keep the markov chains separate for trace plots
 color_scheme_set("brewer-Spectral")
 mcmc_trace(
@@ -966,15 +983,18 @@ color_scheme_set("blue")
 Looks as if the divergent parameters, the little red bars underneath the traceplots
 correspond to samples where the sampler gets stuck at one parameter value for $\sigma_\mu$.
 
-```{r}
+```{r, scatter-with-divs}
 # assign to object so we can compare to another plot later
 scatter_with_divs <- mcmc_scatter(
   as.array(fitted_model_NB_hier),
-  pars = c("mu[4]", 'sigma_mu'),
-  transform = list('sigma_mu' = "log"),
-  np = nuts_params(fitted_model_NB_hier)
+  pars = c("mu[4]", "sigma_mu"),
+  transform = list("sigma_mu" = "log"),
+  size = 1,
+  alpha = 0.3,
+  np = nuts_params(fitted_model_NB_hier),
+  np_style = scatter_style_np(div_size = 1.5)
 )
-scatter_with_divs
+scatter_with_divs + coord_equal()
 ```
 
 What we have here is a cloud-like shape, with most of the divergences clustering
@@ -1002,14 +1022,16 @@ mcmc_scatter(draws)
 Of course, if the data is at all informative we shouldn't expect the posterior
 to look exactly like the prior. But unless the data is incredibly informative
 about the parameters and the posterior concentrates away from the narrow neck of
-the funnel, the sampler is going to have to confront the funnel geometry. (See
-the [Visual MCMC
-Diagnostics](http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html)
+the funnel, the sampler is going to have to confront the funnel geometry. 
+(See the
+[Visual MCMC Diagnostics](http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html)
 vignette for more on this.)
 
-Another way to look at the divergences is via a parallel coordinates plot:
+Another way to look at the divergences is via a parallel coordinates plot
+(see description at https://mc-stan.org/bayesplot/reference/MCMC-parcoord.html#plot-descriptions).
 
 ```{r}
+# this plot is a bit computationally intensive
 parcoord_with_divs <- mcmc_parcoord(
   as.array(fitted_model_NB_hier, pars = c("sigma_mu", "mu")),
   np = nuts_params(fitted_model_NB_hier)
@@ -1031,15 +1053,13 @@ $$
 \mu_b \sim \text{Normal}(\alpha + \texttt{building_data} \, \zeta, \sigma_{\mu})
 $$
 
-
-
 ```
 transformed parameters {
   vector[J] mu = alpha + building_data * zeta + sigma_mu * mu_raw;
 }
 ```
 
-This gives $\texttt{mu}$ a
+This implies $\texttt{mu}$ is
 $\text{Normal}(\alpha + \texttt{building_data}\, \zeta, \sigma_\mu)$
 distribution, but it decouples the dependence of the density of each element of
 $\texttt{mu}$ from $\texttt{sigma_mu}$ ($\sigma_\mu$).
@@ -1047,7 +1067,6 @@ hier_NB_regression_ncp.stan uses the non-centered parameterization for
 $\texttt{mu}$. We will examine the effective sample size of the fitted model to
 see whether we've fixed the problem with our reparameterization.
 
-Compile the model.
 
 ```{r comp-NB-hier-ncp, cache=TRUE}
 comp_model_NB_hier_ncp <- stan_model('stan_programs/hier_NB_regression_ncp.stan')
@@ -1056,43 +1075,43 @@ comp_model_NB_hier_ncp <- stan_model('stan_programs/hier_NB_regression_ncp.stan'
 Fit the model to the data.
 
 ```{r run-NB-hier-ncp}
-fitted_model_NB_hier_ncp <- sampling(comp_model_NB_hier_ncp, data = stan_dat_hier, chains = 4, cores = 4)
+fitted_model_NB_hier_ncp <- sampling(comp_model_NB_hier_ncp, data = stan_dat_hier, 
+                                     chains = 4, cores = 4, refresh = 1000)
 ```
 
-Examining the fit of the new model
+You should have no divergences (or only a few) this time and much improved
+effective sample sizes:
 
 ```{r n-eff-NB-hier-ncp-check}
 print(fitted_model_NB_hier_ncp, pars = c('sigma_mu','beta','alpha','phi','mu'))
 ```
 
-This has improved the effective sample sizes of $\texttt{mu}$. We extract
-the parameters to run our usual posterior predictive checks.
+
+Let's make the same scatter plot we made for the model with many divergences and 
+compare: 
 
 ```{r}
 scatter_no_divs <- mcmc_scatter(
   as.array(fitted_model_NB_hier_ncp),
   pars = c("mu[4]", 'sigma_mu'),
   transform = list('sigma_mu' = "log"),
+  size = 1,
+  alpha = 0.3,
   np = nuts_params(fitted_model_NB_hier_ncp)
 )
-bayesplot_grid(scatter_with_divs, scatter_no_divs,
-               grid_args = list(ncol = 2), ylim = c(-11, 1))
-```
-
-```{r}
-parcoord_no_divs <- mcmc_parcoord(
-  as.array(fitted_model_NB_hier_ncp, pars = c("sigma_mu", "mu")),
-  np = nuts_params(fitted_model_NB_hier_ncp)
+bayesplot_grid(
+  scatter_with_divs, scatter_no_divs,
+  grid_args = list(ncol = 2), 
+  ylim = c(-11, 1), 
+  subtitles = c("Centered parameterization", 
+                "Non-centered parameterization")
 )
-bayesplot_grid(parcoord_with_divs, parcoord_no_divs,
-               ylim = c(-3, 3))
 ```
 
-```{r samps-full-hier}
-samps_NB_hier_ncp <- rstan::extract(fitted_model_NB_hier_ncp, pars = c('y_rep','inv_phi'))
-```
+Comparing the plots, we see that the divergences were a sign that there was part
+of the posterior that the chains were not exploring.
 
-The marginal plot, again.
+The marginal PPC plot, again.
 
 ```{r ppc-full-hier}
 y_rep <- as.matrix(fitted_model_NB_hier_ncp, pars = "y_rep")
@@ -1150,12 +1169,18 @@ ppc_stat_grouped(
 Predictions by number of traps:
 
 ```{r}
-ppc_intervals(
+ppc_intervals_grouped(
   y = stan_dat_hier$complaints,
   yrep = y_rep,
-  x = stan_dat_hier$traps
+  x = stan_dat_hier$traps,
+  # difference b/t grouping by pest_data$building_id and stan_dat_hier$building_idx
+  # is that the latter is consecutive from 1 to N_buildings to make things easier 
+  # to code in Stan. 
+  group = stan_dat_hier$building_idx, 
+  jitter = 0.15
 ) +
-  labs(x = "Number of traps", y = "Number of complaints")
+  labs(x = "Number of traps", 
+       y = "Predicted number of complaints")
 ```
 
 
@@ -1163,10 +1188,6 @@ ppc_intervals(
 ppc_rootogram(stan_dat_hier$complaints, yrep = y_rep)
 ```
 
-Rootogram:
-```{r}
-ppc_rootogram(stan_dat_hier$complaints, yrep = y_rep)
-```
 
 
 ### Varying intercepts _and_ varying slopes
@@ -1422,22 +1443,6 @@ rho_draws <- cbind(
 colnames(rho_draws) <- c("prior", "posterior")
 mcmc_hist(rho_draws, freq = FALSE, binwidth = 0.025,
           facet_args = list(nrow = 2)) + xlim(-1, 1)
-
-
-# 2) overlay prior density curve on posterior draws
-gen_rho_prior <- function(x) {
-  alpha <- 10; beta <- 5
-  a <- -1; c <- 1
-  lp <- (alpha - 1) * log(x - a) +
-        (beta - 1) * log(c - x) -
-        (alpha + beta - 1) * log(c - a) -
-         lbeta(alpha, beta)
-  return(exp(lp))
-}
-mcmc_hist(as.matrix(fitted_model_NB_hier_mos, pars = "rho"),
-          freq = FALSE, binwidth = 0.01) +
-  overlay_function(fun = gen_rho_prior) +
-  xlim(-1,1)
 ```
 
 ```{r}
@@ -1448,7 +1453,8 @@ print(fitted_model_NB_hier_mos, pars = c('rho','sigma_mu','sigma_kappa','gamma')
 ppc_intervals(
   y = stan_dat_hier$complaints,
   yrep = y_rep,
-  x = stan_dat_hier$traps
+  x = stan_dat_hier$traps,
+  jitter = 0.2
 ) +
   labs(x = "Number of traps", 
        y = "Number of complaints")
