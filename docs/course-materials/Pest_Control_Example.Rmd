@@ -1337,13 +1337,13 @@ $$
 \rho = 2 \times \rho_{\text{raw}} - 1
 $$
 
-Then we can put a beta prior on $\rho_\text{raw}$ to push our estimate towards 0.5.
+Then we can use a beta prior on $\rho_\text{raw}$ to push our estimate of $\rho$ towards 0.5.
 
 For example a `rho_raw ~ beta(10, 5)` prior would look like:
 
-```{r}
-library(ggformula)
-gf_dist("beta", shape1 = 10, shape2 = 5)
+```{r, fig.width = 3, fig.height = 3}
+suppressPackageStartupMessages(library(ggformula))
+gf_dist("beta", shape1 = 10, shape2 = 5) + xlab("rho_raw") 
 ```
 
 One further wrinkle is that we have a prior for $\texttt{mo}_t$ that depends on
@@ -1575,16 +1575,9 @@ p + facet_wrap(~ building, scales = 'fixed', ncol = 3)
 ```
 
 
-```{r}
-# interactive version
-library(plotly)
-p %>% ggplotly()
-```
-
-
 <br>
 
-Left as an exercise for the reader:
+Left as an exercise for the reader (unless we have time):
 
 * How would we build a revenue curve for a new building?
 
