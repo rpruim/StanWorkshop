@@ -10,7 +10,7 @@ output:
 
 ## Setup
 
-```{r setup, results="hide"}
+```{r setup, results="hide", message=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE, 
   dev = "png",
@@ -441,7 +441,7 @@ ppc_intervals(
   yrep = y_rep,
   x = stan_dat_simple$traps,
   # jitter helps since we have multiple observations at each (or many) values of x
-  jitter = 0.1
+  jitter = 0.2
 ) + 
   labs(x = "Number of traps", 
        y = "Predicted number of complaints")
@@ -798,7 +798,8 @@ Check predictions by number of traps:
 ppc_intervals(
   y = stan_dat_simple$complaints, 
   yrep = y_rep,
-  x = stan_dat_simple$traps
+  x = stan_dat_simple$traps,
+  jitter = 0.2
 ) + 
   labs(x = "Number of traps", y = "Number of complaints")
 ```
@@ -951,7 +952,7 @@ an indication that there may be regions of the posterior that have not been
 explored by the Markov chains.
 
 Divergences are discussed in more detail in the course slides as well as
-the **bayesplot** (MCMC diagnostics vignette)[http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html]
+the **bayesplot** [MCMC diagnostics vignette](http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html)
 and [_A Conceptual Introduction to Hamiltonian Monte Carlo_](https://arxiv.org/abs/1701.02434).
 
 In this
@@ -983,14 +984,13 @@ mcmc_trace(
   # use as.array to keep the markov chains separate for trace plots
   as.array(fitted_model_NB_hier,pars = 'sigma_mu'),
   np = nuts_params(fitted_model_NB_hier),
-  window = c(500,1000)
+  window = c(500,1000) # zoom into a window to see more clearly
 )
 color_scheme_set("blue")
 ```
 
-Looks like divergences, the little red bars underneath the traceplots
-correspond to spots where sampler gets stuck at one parameter value for 
-$\sigma_\mu$.
+Looks like the divergences (marked in red below the traceplot)
+correspond to spots where sampler gets stuck.
 
 ```{r, scatter-with-divs}
 # assign to object so we can compare to another plot later
