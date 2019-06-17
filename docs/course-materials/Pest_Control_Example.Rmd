@@ -16,7 +16,8 @@ knitr::opts_chunk$set(
   dev = "png",
   dpi = 150,
   fig.align = "center",
-  comment = NA
+  comment = NA,
+  cache=TRUE
 )
 library(rstan)
 library(dplyr)
@@ -114,9 +115,9 @@ We have access to the following fields:
 * `monthly_average_rent`: The average monthly rent per building
 * `floors`: The number of floors per building
 
-First, let's see how many buildings we have data for:
+First, let's see how many buildings we have in the data:
 
-```{r describe-data}
+```{r N_buildings}
 N_buildings <- length(unique(pest_data$building_id))
 N_buildings
 ```
@@ -133,7 +134,7 @@ ggplot(pest_data, aes(x = traps, y = complaints, color = live_in_super == TRUE))
   geom_jitter()
 ```
 
-```{r, data-plot-ts, fig.width = 6, fig.height = 8}
+```{r data-plot-ts, fig.width = 6, fig.height = 8}
 ggplot(pest_data, aes(x = date, y = complaints, color = live_in_super == TRUE)) + 
   geom_line(aes(linetype = "Number of complaints")) + 
   geom_point(color = "black") + 
@@ -204,7 +205,7 @@ simulation (ideally we would do this for many different draws from the prior).
 You can think of this step as software testing.
 
 In R we can simulate data like this: 
-```{r}
+```{r simulate-in-r}
 set.seed(106) # seed for R (not Stan)
 N <- nrow(pest_data)
 alpha_prior <- rnorm(1, mean = log(4), sd = .1)
@@ -231,19 +232,19 @@ happening under the hood.
 First we will compile the Stan program (`simple_poisson_regression_dgp.stan`) that
 will generate the fake data.
 
-```{r , cache=TRUE, results="hide", message=FALSE}
+```{r comp_dgp_simple, cache=TRUE, results="hide", message=FALSE}
 comp_dgp_simple <- stan_model('stan_programs/simple_poisson_regression_dgp.stan')
 ```
 
 Printing this object shows the Stan program: 
 
-```{r}
+```{r print-comp_dgp_simple}
 print(comp_dgp_simple)
 ```
 
 Now we can simulate the data by calling the `sampling()` function.
 
-```{r runpoissondgp}
+```{r simulate-data-with-stan}
 fitted_model_dgp <- sampling(
   comp_dgp_simple,
   data = list(N = nrow(pest_data), mean_traps = mean(pest_data$traps)),
@@ -265,7 +266,7 @@ In order to pass the fake data to our Stan program using RStan, we need to
 arrange the data into a named list. The names must match the names used 
 in the `data` block of the Stan program.
 
-```{r}
+```{r prepare-data-list}
 stan_dat_fake <- list(
   N = nrow(pest_data), 
   traps = samps_dgp$traps[1, ], 
@@ -277,7 +278,7 @@ str(stan_dat_fake)
 Now that we have the simulated data we fit the model to see if we can recover
 the `alpha` and `beta` parameters used in the simulation.
 
-```{r , cache=TRUE, results="hide", message=FALSE}
+```{r fit_model_P-fake-data, cache=TRUE, results="hide", message=FALSE}
 comp_model_P <- stan_model('stan_programs/simple_poisson_regression.stan')
 fit_model_P <- sampling(comp_model_P, data = stan_dat_fake, seed = 123)
 
@@ -288,7 +289,7 @@ head(posterior_alpha_beta)
 
 ### Assess parameter recovery
 
-```{r}
+```{r parameter-recovery}
 true_alpha_beta <- c(samps_dgp$alpha, samps_dgp$beta)
 mcmc_recover_hist(posterior_alpha_beta, true = true_alpha_beta)
 ```
@@ -308,8 +309,11 @@ are a good resource on this topic.)
 
 Here is a plot of the density estimate of the observed data compared to 
 200 of the `y_rep` datasets: 
-```{r}
+
+```{r ppc_dens_overlay}
 y_rep <- as.matrix(fit_model_P, pars = "y_rep")
+
+# https://mc-stan.org/bayesplot/reference/PPC-distributions#plot-descriptions
 ppc_dens_overlay(y = stan_dat_fake$complaints, yrep = y_rep[1:200, ])
 ```
 In the plot above we have the kernel density estimate of the observed data ($y$,
@@ -323,15 +327,17 @@ Another plot we can make for count data is a rootogram. This is a plot of the
 can see the model fits well because the observed histogram matches the expected
 counts relatively well.
 
-```{r}
-ppc_rootogram(stan_dat_fake$complaints, yrep = y_rep)
+```{r ppc_rootogram}
+# https://mc-stan.org/bayesplot/reference/PPC-discrete#plot-descriptions
+ppc_rootogram(y = stan_dat_fake$complaints, yrep = y_rep, prob = 0.9)
 ```
 
 The `ppc_bars()` function will make a bar plot of the observed values and
 overlay prediction intervals but not on the square root scale (unlike the
 rootogram).
 
-```{r}
+```{r ppc_bars}
+# https://mc-stan.org/bayesplot/reference/PPC-discrete#plot-descriptions
 ppc_bars(stan_dat_fake$complaints, yrep = y_rep)
 ```
 
@@ -340,7 +346,7 @@ ppc_bars(stan_dat_fake$complaints, yrep = y_rep)
 To fit the model to the actual observed data we'll first create a list to pass
 to Stan using the variables in the `pest_data` data frame:
 
-```{r stan-data}
+```{r stan_dat_simple}
 stan_dat_simple <- list(
   N = nrow(pest_data), 
   complaints = pest_data$complaints,
@@ -361,25 +367,27 @@ fit_P_real_data <- sampling(comp_model_P, data = stan_dat_simple,
 
 Print the summary of the intercept and slope parameters: 
 
-```{r results_simple_P}
+```{r print-fit_P_real_data}
 print(fit_P_real_data, pars = c('alpha','beta'))
 ```
 
 We can also plot the posterior distributions: 
 
-```{r hist_simple_P}
-mcmc_hist(as.matrix(fit_P_real_data, pars = c('alpha','beta')))
-mcmc_scatter(as.matrix(fit_P_real_data, pars = c('alpha','beta')), alpha = 0.2)
+```{r mcmc_hist}
+draws <- as.matrix(fit_P_real_data, pars = c('alpha','beta'))
+mcmc_hist(draws) # marginal posteriors of alpha and beta
+mcmc_scatter(draws, alpha = 0.2) # posterior of (alpha,beta)
 ```
 
-As we expected, it appears the number of bait stations set in a building is
-associated with the number of complaints about cockroaches that were made in the
-following month. However, we still need to consider how well the model fits.
+From the posterior of `beta`, it appears the number of bait stations set in a
+building is associated with the number of complaints about cockroaches that were
+made in the following month. However, we still need to consider how well the
+model fits.
 
 
 ### Posterior predictive checking
 
-```{r}
+```{r y_rep}
 y_rep <- as.matrix(fit_P_real_data, pars = "y_rep")
 ```
 
@@ -394,8 +402,11 @@ this data.
 
 Let's explore this further by looking directly at the proportion of zeros in the
 real data and predicted data.
-```{r}
+```{r ppc_stat-prop_zero}
+# calculate the proportion of zeros in a vector
 prop_zero <- function(x) mean(x == 0)
+
+# https://mc-stan.org/bayesplot/reference/PPC-test-statistics#plot-descriptions
 ppc_stat(y = stan_dat_simple$complaints, yrep = y_rep, stat = "prop_zero")
 ```
 The plot above shows the observed proportion of zeros (thick vertical line) and
@@ -421,7 +432,7 @@ We can also view how the predicted number of complaints varies with the number
 of traps. From this we can see that the model doesn't seem to fully capture the
 data.
 
-```{r}
+```{r ppc_intervals}
 # Note: the jitter argument will be ignored unless you install a development
 # version of bayesplot from GitHub: 
 # devtools::install_github("stan-dev/bayesplot", ref = "ppd-functions")
@@ -495,6 +506,8 @@ $$
 \textrm{log_sq_foot}_b
 $$
  
+Add them to the list of data to pass to Stan: 
+
 ```{r}
 stan_dat_simple$log_sq_foot <- pest_data$log_sq_foot_1e4 # log(total_sq_foot/1e4)
 stan_dat_simple$live_in_super <- pest_data$live_in_super
@@ -509,11 +522,11 @@ Now we need a new Stan model that uses multiple predictors.
 
 ### Simulate fake data with multiple predictors
 
-```{r compmultPDGP, cache=TRUE, results="hide", message=FALSE}
+```{r comp_dgp_multiple, results="hide", message=FALSE}
 comp_dgp_multiple <- stan_model('stan_programs/multiple_poisson_regression_dgp.stan')
 ```
 
-```{r runpoissondgp2}
+```{r fitted_model_dgp-multiple}
 fitted_model_dgp <-
   sampling(
   comp_dgp_multiple,
@@ -529,7 +542,7 @@ samps_dgp <- rstan::extract(fitted_model_dgp)
 
 Now pop that simulated data into a list ready for Stan. 
 
-```{r}
+```{r, stan_dat_fake-multiple}
 stan_dat_fake <- list(
   N = nrow(pest_data), 
   log_sq_foot = samps_dgp$log_sq_foot[1, ],
@@ -541,7 +554,7 @@ stan_dat_fake <- list(
 
 And then compile and fit the model we wrote for the multiple regression.
 
-```{r, cache=TRUE, message=FALSE, warning=FALSE}
+```{r comp_model_P_mult, message=FALSE, warning=FALSE}
 comp_model_P_mult <- stan_model('stan_programs/multiple_poisson_regression.stan')
 fit_model_P_mult <-
   sampling(
@@ -555,7 +568,7 @@ Then compare these parameters to the true parameters:
 
 ```{r}
 posterior_alpha_beta <- as.matrix(fit_model_P_mult, pars = c('alpha','beta','beta_super'))
-true_alpha_beta <- c(samps_dgp$alpha,samps_dgp$beta,samps_dgp$beta_super)
+true_alpha_beta <- c(samps_dgp$alpha, samps_dgp$beta, samps_dgp$beta_super)
 mcmc_recover_hist(posterior_alpha_beta, true = true_alpha_beta)
 ```
 
@@ -566,13 +579,13 @@ Stan program correctly and we're ready to fit the real data.
 
 Now let's use the real data and explore the fit.
 
-```{r fit_mult_P_real_dat}
+```{r fit_model_P_mult_real}
 fit_model_P_mult_real <- sampling(comp_model_P_mult, data = stan_dat_simple, 
                                   refresh = 0) 
 
 ```
 
-```{r}
+```{r ppc_dens_overlay-random-subset}
 y_rep <- as.matrix(fit_model_P_mult_real, pars = "y_rep")
 ppc_dens_overlay(stan_dat_simple$complaints, y_rep[1:200,])
 
@@ -664,7 +677,7 @@ negative-binomial gets closer and closer to the Poisson.
 
 ### Fake data fit: Multiple NB regression
 
-```{r , cache=TRUE, results="hide", message=FALSE}
+```{r comp_dgp_multiple_NB, results="hide", message=FALSE}
 comp_dgp_multiple_NB <- stan_model('stan_programs/multiple_NB_regression_dgp.stan')
 ```
 
@@ -672,7 +685,7 @@ We're going to generate one draw from the fake data model so we can use the data
 to fit our model and compare the known values of the parameters to the posterior
 density of the parameters.
 
-```{r fake_data_dgp_NB}
+```{r fitted_model_dgp_NB}
 fitted_model_dgp_NB <-
   sampling(
   comp_dgp_multiple_NB,
@@ -700,7 +713,7 @@ stan_dat_fake_NB <- list(
 
 Compile the inferential model.
 
-```{r , cache=TRUE, results="hide", message=FALSE}
+```{r comp_model_NB, results="hide", message=FALSE}
 comp_model_NB <- stan_model('stan_programs/multiple_NB_regression.stan')
 ```
 
@@ -914,7 +927,7 @@ stan_dat_hier <-
 
 Let's compile the model.
 
-```{r comp-NB-hier, cache=TRUE, results="hide", message=FALSE}
+```{r comp_model_NB_hier, results="hide", message=FALSE}
 comp_model_NB_hier <- stan_model('stan_programs/hier_NB_regression.stan')
 ```
 
@@ -952,15 +965,9 @@ something that reparameterization will resolve. We will go through:
 1. Examining the fitted parameter values, including the effective sample size
 2. Traceplots and scatterplots that reveal particular patterns in locations of the divergences.
 
-First let's extract the fits from the model.
-
-```{r}
-samps_hier_NB <- rstan::extract(fitted_model_NB_hier)
-```
-
 Then we print the fits for the parameters that are of most interest.
 
-```{r print-NB-hier}
+```{r fitted_model_NB_hier-low-ESS}
 print(fitted_model_NB_hier, pars = c('sigma_mu','beta','alpha','phi','mu'))
 ```
 You can see that the effective samples are quite low for many of the parameters
@@ -969,10 +976,11 @@ to reparameterize, but it indicates that we should look further at the trace
 plots and pairs plots. First let's look at the traceplots to see if the divergent
 transitions form a pattern.
 
-```{r, traceplot-with-divs}
-# use as.array to keep the markov chains separate for trace plots
-color_scheme_set("brewer-Spectral")
+```{r traceplot-with-divs}
+# change bayesplot color scheme (to make chains very different colors)
+color_scheme_set("brewer-Spectral") 
 mcmc_trace(
+  # use as.array to keep the markov chains separate for trace plots
   as.array(fitted_model_NB_hier,pars = 'sigma_mu'),
   np = nuts_params(fitted_model_NB_hier),
   window = c(500,1000)
@@ -980,8 +988,9 @@ mcmc_trace(
 color_scheme_set("blue")
 ```
 
-Looks as if the divergent parameters, the little red bars underneath the traceplots
-correspond to samples where the sampler gets stuck at one parameter value for $\sigma_\mu$.
+Looks like divergences, the little red bars underneath the traceplots
+correspond to spots where sampler gets stuck at one parameter value for 
+$\sigma_\mu$.
 
 ```{r, scatter-with-divs}
 # assign to object so we can compare to another plot later
@@ -992,7 +1001,7 @@ scatter_with_divs <- mcmc_scatter(
   size = 1,
   alpha = 0.3,
   np = nuts_params(fitted_model_NB_hier),
-  np_style = scatter_style_np(div_size = 1.5)
+  np_style = scatter_style_np(div_size = 1.5) # change style of divergences points
 )
 scatter_with_divs + coord_equal()
 ```
@@ -1023,14 +1032,14 @@ Of course, if the data is at all informative we shouldn't expect the posterior
 to look exactly like the prior. But unless the data is incredibly informative
 about the parameters and the posterior concentrates away from the narrow neck of
 the funnel, the sampler is going to have to confront the funnel geometry. 
-(See the
-[Visual MCMC Diagnostics](http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html)
+(See the bayesplot 
+[Visual MCMC Diagnostics](https://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html)
 vignette for more on this.)
 
-Another way to look at the divergences is via a parallel coordinates plot
-(see description at https://mc-stan.org/bayesplot/reference/MCMC-parcoord.html#plot-descriptions).
+Another way to look at the divergences is via a parallel coordinates plot.
 
 ```{r}
+# https://mc-stan.org/bayesplot/reference/MCMC-parcoord.html#plot-descriptions
 # this plot is a bit computationally intensive
 parcoord_with_divs <- mcmc_parcoord(
   as.array(fitted_model_NB_hier, pars = c("sigma_mu", "mu")),
@@ -1068,13 +1077,13 @@ $\texttt{mu}$. We will examine the effective sample size of the fitted model to
 see whether we've fixed the problem with our reparameterization.
 
 
-```{r comp-NB-hier-ncp, cache=TRUE}
+```{r comp_model_NB_hier_ncp}
 comp_model_NB_hier_ncp <- stan_model('stan_programs/hier_NB_regression_ncp.stan')
 ```
 
 Fit the model to the data.
 
-```{r run-NB-hier-ncp}
+```{r fitted_model_NB_hier_ncp}
 fitted_model_NB_hier_ncp <- sampling(comp_model_NB_hier_ncp, data = stan_dat_hier, 
                                      chains = 4, cores = 4, refresh = 1000)
 ```
@@ -1082,7 +1091,7 @@ fitted_model_NB_hier_ncp <- sampling(comp_model_NB_hier_ncp, data = stan_dat_hie
 You should have no divergences (or only a few) this time and much improved
 effective sample sizes:
 
-```{r n-eff-NB-hier-ncp-check}
+```{r fitted_model_NB_hier_ncp-ESS}
 print(fitted_model_NB_hier_ncp, pars = c('sigma_mu','beta','alpha','phi','mu'))
 ```
 
@@ -1090,7 +1099,7 @@ print(fitted_model_NB_hier_ncp, pars = c('sigma_mu','beta','alpha','phi','mu'))
 Let's make the same scatter plot we made for the model with many divergences and 
 compare: 
 
-```{r}
+```{r compare-scatterplots}
 scatter_no_divs <- mcmc_scatter(
   as.array(fitted_model_NB_hier_ncp),
   pars = c("mu[4]", 'sigma_mu'),
@@ -1099,6 +1108,7 @@ scatter_no_divs <- mcmc_scatter(
   alpha = 0.3,
   np = nuts_params(fitted_model_NB_hier_ncp)
 )
+
 bayesplot_grid(
   scatter_with_divs, scatter_no_divs,
   grid_args = list(ncol = 2), 
@@ -1192,10 +1202,10 @@ ppc_rootogram(stan_dat_hier$complaints, yrep = y_rep)
 
 ### Varying intercepts _and_ varying slopes
 
-We've gotten some new data that extends the number of time points for which we
+We have some new data that extends the number of time points for which we
 have observations for each building. This will let us explore how to expand the
 model a bit more with varying _slopes_ in addition to the varying intercepts
-and also, later, also model temporal variation.
+and later also model temporal variation.
 
 ```{r}
 stan_dat_hier <- readRDS('data/pest_data_longer_stan_dat.RDS')
@@ -1248,9 +1258,10 @@ print(fitted_model_NB_hier_slopes, pars = c('kappa','beta','alpha','phi','sigma_
 ```
 
 
-While the model can't specifically rule out zero from the posterior, it does have mass at small
-non-zero numbers, so we will leave in the hierarchy over $\texttt{kappa}$. Plotting the marginal
-data density again, we can see the model still looks well calibrated.
+While the model can't specifically rule out zero from the posterior, it does
+have mass at small non-zero numbers, so we will leave in the hierarchy over
+$\texttt{kappa}$. Plotting the marginal data density again, we can see the model
+still looks well calibrated.
 
 ```{r ppc-full-hier-slopes}
 y_rep <- as.matrix(fitted_model_NB_hier_slopes, pars = "y_rep")
@@ -1292,15 +1303,16 @@ $$
 \eta_{b,t} = \mu_b + \kappa_b \, \texttt{traps}_{b,t} + \texttt{mo}_t + \text{log_sq_foot}_b
 $$
 
-We have complete freedom over how to specify the prior for $\texttt{mo}_t$. There are
-several competing factors for how the number of complaints might change over time. It makes
-sense that there might be more roaches in the environment during the summer, but we might
-also expect that there is more roach control in the summer as well. Given that we're
-modeling complaints, maybe after the first sighting of roaches in a building, residents are
-more vigilant, and thus complaints of roaches would increase.
+We have complete freedom over how to specify the prior for $\texttt{mo}_t$.
+There are several competing factors for how the number of complaints might
+change over time. It makes sense that there might be more roaches in the
+environment during the summer, but we might also expect that there is more roach
+control in the summer as well. Given that we're modeling complaints, maybe after
+the first sighting of roaches in a building, residents are more vigilant, and
+thus complaints of roaches would increase.
 
-This can be a motivation for using an autoregressive prior for our monthly effects. The model
-is as follows:
+This can be a motivation for using an autoregressive prior for our monthly
+effects. The model is as follows:
 
 $$
 \texttt{mo}_t \sim \text{Normal}(\rho \, \texttt{mo}_{t-1}, \sigma_\texttt{mo}) \\
@@ -1404,10 +1416,10 @@ fitted_model_NB_hier_mos <-
   )
 ```
 
-In the interest of brevity, we won't go on expanding the model, though we certainly could.
-What other information would help us understand the data generating process better? What
-other aspects of the data generating process might we want to capture that we're not
-capturing now?
+In the interest of brevity, we won't go on expanding the model, though we
+certainly could. What other information would help us understand the data
+generating process better? What other aspects of the data generating process
+might we want to capture that we're not capturing now?
 
 As usual, we run through our posterior predictive checks.
 
